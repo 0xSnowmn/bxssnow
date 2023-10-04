@@ -46,14 +46,14 @@ var extract = () => {
     origin()
     screenshot()
     data.title = document.title
-    fetch('http://localhost:8080/post', {
+    fetch('http://0.0.0.0:8080/post', {
     method: 'POST',
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({a: 1, b: 'Textual content'})
-  });
+    body: JSON.stringify({data:data})
+  }).then(res => console.log(res.json()));
 } 
 
 // Trying to extract the dom text from every option possible
