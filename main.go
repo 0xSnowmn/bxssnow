@@ -1,7 +1,9 @@
 package main
 
 import (
-	"fmt"
+	"encoding/json"
+	"errors"
+	"log"
 	"net/http"
 
 	"github.com/gin-contrib/cors"
@@ -9,7 +11,17 @@ import (
 )
 
 type Data struct {
-	Data string `json:"data"`
+	/* URL               string `json:"url"`
+	Origin            string `json:"origin"`
+	UserAgent         string `json:"userAgent"`
+	LocalStorage      string `json:"localStorage"` */
+	Screen interface{} `json:"screenshot"`
+	/* Cookies           string `json:"cookies"`
+	Referrer          string `json:"referrer"`
+	Text              string `json:"text"`
+	Dom               string `json:"dom"`
+	Title             string `json:"title"`
+	Iframe            bool   `json:"iframe"` */
 }
 
 func main() {
@@ -22,9 +34,16 @@ func main() {
 	}))
 	router.POST("/post", func(c *gin.Context) {
 		var data Data
-		c.BindJSON(&data)
+		var jsonErr *json.UnmarshalTypeError
+
+		if err := c.ShouldBindJSON(&data); err != nil {
+			if errors.As(c.Errors[0], &jsonErr) {
+				log.Println("Json binding error")
+			}
+			c.JSON(http.StatusOK, err)
+		}
 		c.JSON(http.StatusOK, data)
-		fmt.Println(data)
+		//fmt.Println(data)
 	})
 	router.Run()
 }
