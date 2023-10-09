@@ -4,9 +4,10 @@ import (
 	"encoding/base64"
 	"fmt"
 	"image"
+
+	//"image/png"
 	"image/png"
 	_ "image/png"
-	"io"
 	"log"
 	"os"
 	"strings"
@@ -14,14 +15,14 @@ import (
 	"github.com/h2non/bimg"
 )
 
-func DecodeImage(b64 string) {
+func DecodeImage(b64 string, domain string) {
 	reader := base64.NewDecoder(base64.StdEncoding, strings.NewReader(b64))
 	m, _, err := image.Decode(reader)
 	if err != nil {
 		log.Fatal(err)
 	}
-	pngFilename := "test.png"
-	f, err := os.OpenFile(pngFilename, os.O_WRONLY|os.O_CREATE, 0777)
+	pngFilename := domain + ".png"
+	f, err := os.Create(pngFilename)
 	if err != nil {
 		log.Fatal(err)
 		return
@@ -32,22 +33,6 @@ func DecodeImage(b64 string) {
 		log.Fatal(err)
 		return
 	}
-	as, _ := os.Open("test.png")
-	buffer, err := io.ReadAll(as)
-	if err != nil {
-		panic(err)
-	}
-
-	errDir := createFolder("uploads")
-	if errDir != nil {
-		panic(errDir)
-	}
-
-	w, err := imageProcessing(buffer, 90, "uploads")
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(w)
 }
 
 func createFolder(dirname string) error {
@@ -62,7 +47,7 @@ func createFolder(dirname string) error {
 }
 
 // The mime type of the image is changed, it is compressed and then saved in the specified folder.
-func imageProcessing(buffer []byte, quality int, dirname string) (string, error) {
+func imageProcessing(buffer []byte, dirname string, url string) (string, error) {
 	filename := strings.Replace("wrwrr", "-", "", -1) + ".webp"
 
 	converted, err := bimg.NewImage(buffer).Convert(bimg.WEBP)
@@ -70,7 +55,7 @@ func imageProcessing(buffer []byte, quality int, dirname string) (string, error)
 		return filename, err
 	}
 
-	processed, err := bimg.NewImage(converted).Process(bimg.Options{Quality: quality})
+	processed, err := bimg.NewImage(converted).Process(bimg.Options{Quality: 90})
 	if err != nil {
 		return filename, err
 	}

@@ -10,6 +10,7 @@ import (
 func main() {
 	router := gin.Default()
 	router.StaticFile("/extractor.js", "./injector/extractor.js")
+	router.StaticFile("/mm.html", "./injector/mm.html")
 	router.Use(cors.New(cors.Config{
 		AllowOrigins: []string{"*"},
 		AllowMethods: []string{"*"},

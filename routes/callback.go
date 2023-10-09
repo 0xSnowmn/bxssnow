@@ -2,7 +2,9 @@ package routes
 
 import (
 	"bxssnow/core"
+	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -29,6 +31,9 @@ func Callback(c *gin.Context) {
 		c.JSON(http.StatusOK, err)
 	}
 	c.JSON(http.StatusOK, data)
-	core.DecodeImage(data.ScreenEncoded)
+	//fmt.Println()
+	domain := strings.SplitAfter(data.Origin, "//")
+	fmt.Println(domain[1])
+	core.DecodeImage(data.ScreenEncoded, domain[1])
 
 }
