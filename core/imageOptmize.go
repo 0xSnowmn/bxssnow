@@ -4,8 +4,9 @@ import (
 	"encoding/base64"
 	"fmt"
 	"image"
+	"io"
+	"time"
 
-	//"image/png"
 	"image/png"
 	_ "image/png"
 	"log"
@@ -22,7 +23,7 @@ func DecodeImage(b64 string, domain string) {
 		log.Fatal(err)
 	}
 	pngFilename := domain + ".png"
-	f, err := os.Create(pngFilename)
+	f, err := os.Create("./screenshots/" + pngFilename)
 	if err != nil {
 		log.Fatal(err)
 		return
@@ -33,6 +34,16 @@ func DecodeImage(b64 string, domain string) {
 		log.Fatal(err)
 		return
 	}
+	ff, _ := os.Open("./screenshots/" + pngFilename)
+	buffer, err := io.ReadAll(ff)
+	if err != nil {
+		panic(err)
+	}
+	d, err := ProccessImage(buffer)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(d)
 }
 
 func createFolder(dirname string) error {
@@ -47,8 +58,18 @@ func createFolder(dirname string) error {
 }
 
 // The mime type of the image is changed, it is compressed and then saved in the specified folder.
-func imageProcessing(buffer []byte, dirname string, url string) (string, error) {
-	filename := strings.Replace("wrwrr", "-", "", -1) + ".webp"
+func ProccessImage(buffer []byte) (string, error) {
+	createFolder("screenshots")
+	currentTime := time.Now()
+
+	screenName := fmt.Sprintf("%d-%d-%d_%d:%d:%d", currentTime.Year(),
+		currentTime.Month(),
+		currentTime.Day(),
+		currentTime.Hour(),
+		currentTime.Minute(),
+		currentTime.Second())
+
+	filename := screenName + ".webp"
 
 	converted, err := bimg.NewImage(buffer).Convert(bimg.WEBP)
 	if err != nil {
@@ -60,7 +81,7 @@ func imageProcessing(buffer []byte, dirname string, url string) (string, error) 
 		return filename, err
 	}
 
-	writeError := bimg.Write(fmt.Sprintf("./"+dirname+"/%s", filename), processed)
+	writeError := bimg.Write(fmt.Sprintf("./screenshots/%s", filename), processed)
 	if writeError != nil {
 		return filename, writeError
 	}

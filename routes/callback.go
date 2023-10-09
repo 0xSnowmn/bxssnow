@@ -2,7 +2,6 @@ package routes
 
 import (
 	"bxssnow/core"
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -31,9 +30,7 @@ func Callback(c *gin.Context) {
 		c.JSON(http.StatusOK, err)
 	}
 	c.JSON(http.StatusOK, data)
-	//fmt.Println()
 	domain := strings.SplitAfter(data.Origin, "//")
-	fmt.Println(domain[1])
 	core.DecodeImage(data.ScreenEncoded, domain[1])
 
 }
