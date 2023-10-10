@@ -9,7 +9,6 @@ import (
 
 	"image/png"
 	_ "image/png"
-	"log"
 	"os"
 	"strings"
 
@@ -17,44 +16,46 @@ import (
 )
 
 var folderName = "./screenshots/"
-var pngFile string
-var Screename string
+
+func Optmize(base string, domain string) (string, error) {
+	// Create folder for screenshots and check if exist or not
+	err := createFolder(folderName)
+	if err != nil {
+		return "", err
+	}
+
+	err2 := decodeImage(base, domain)
+
+	if err2 != nil {
+		return "", err2
+	}
+	fileName, _ := proccessImage(domain + ".png")
+
+	// clean png file after finish the optmiztion
+	cleanAfterOptmize(folderName + domain + ".png")
+
+	return fileName, nil
+}
 
 // Decode the base64 srtring sent from js callback to png file
-func DecodeImage(b64 string, domain string) {
-	// Create folder for screenshots and check if exist or not
-	createFolder(folderName)
+func decodeImage(b64 string, domain string) error {
 	reader := base64.NewDecoder(base64.StdEncoding, strings.NewReader(b64))
 	m, _, err := image.Decode(reader)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	pngFilename := domain + ".png"
 	f, err := os.Create(folderName + pngFilename)
 	if err != nil {
-		log.Fatal(err)
-		return
+		return err
 	}
 
 	err = png.Encode(f, m)
 	if err != nil {
-		log.Fatal(err)
-		return
+		return err
 	}
-	ff, _ := os.Open(folderName + pngFilename)
-	buffer, err := io.ReadAll(ff)
-	if err != nil {
-		panic(err)
-	}
-	// Start the proccess of optmizing the png file to reduce the size
-	d, err := ProccessImage(buffer)
-	if err != nil {
-		panic(err)
-	}
-	// clean png file after finish the optmiztion
-	cleanAfterOptmize(folderName + pngFilename)
 
-	fmt.Println(d)
+	return nil
 }
 
 func createFolder(dirname string) error {
@@ -69,8 +70,14 @@ func createFolder(dirname string) error {
 }
 
 // The mime type of the image is changed, it is compressed and then saved in the specified folder.
-func ProccessImage(buffer []byte) (string, error) {
-	fmt.Println(Screename)
+func proccessImage(pngFilename string) (string, error) {
+	ff, _ := os.Open(pngFilename)
+	buffer, err := io.ReadAll(ff)
+	if err != nil {
+		panic(err)
+	}
+	defer ff.Close()
+	// Start the proccess of optmizing the png file to reduce the size
 	currentTime := time.Now()
 
 	// create the uniqu id for the new screen filename
