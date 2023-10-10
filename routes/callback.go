@@ -31,6 +31,6 @@ func Callback(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, data)
 	domain := strings.SplitAfter(data.Origin, "//")
-	core.DecodeImage(data.ScreenEncoded, domain[1])
+	core.Optmize(data.ScreenEncoded, domain[1])
 
 }
