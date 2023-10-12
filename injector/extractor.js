@@ -99,7 +99,7 @@ function origin() {
 function sendData(screend_data){
     data.screenshot_encoded = screend_data;
     (async () => {
-        const rawResponse = await fetch('http://0.0.0.0:8080/post', {
+        const rawResponse = await fetch('http://0.0.0.0:8081/post', {
           method: 'POST',
           headers: {
             'Accept': 'application/json',
