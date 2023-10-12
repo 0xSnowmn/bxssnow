@@ -29,7 +29,7 @@ func Optmize(base string, domain string) (string, error) {
 	if err2 != nil {
 		return "", err2
 	}
-	fileName, _ := proccessImage(domain + ".png")
+	fileName, _ := proccessImage(folderName + domain + ".png")
 
 	// clean png file after finish the optmiztion
 	cleanAfterOptmize(folderName + domain + ".png")
@@ -79,9 +79,8 @@ func proccessImage(pngFilename string) (string, error) {
 	defer ff.Close()
 	// Start the proccess of optmizing the png file to reduce the size
 	currentTime := time.Now()
-
 	// create the uniqu id for the new screen filename
-	screenName := fmt.Sprintf("%d-%d-%d_%d:%d:%d", currentTime.Year(),
+	screenName := fmt.Sprintf("%s_%d-%d-%d_%d:%d:%d", strings.Replace(pngFilename, folderName, "", 20), currentTime.Year(),
 		currentTime.Month(),
 		currentTime.Day(),
 		currentTime.Hour(),
