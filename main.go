@@ -1,8 +1,8 @@
 package main
 
 import (
+	"bxssnow/core"
 	"bxssnow/routes"
-	"log"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -12,12 +12,11 @@ import (
 func main() {
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		core.LogErrorDiscord(err.Error())
 	}
-	//gin.SetMode(gin.ReleaseMode)
+	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
 	router.StaticFile("/extractor.js", "./injector/extractor.js")
-	router.StaticFile("/mm.html", "./injector/mm.html")
 	router.Use(cors.New(cors.Config{
 		AllowOrigins: []string{"*"},
 		AllowMethods: []string{"*"},
