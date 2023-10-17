@@ -1,13 +1,12 @@
 package routes
 
 import (
-	"bufio"
 	"bxssnow/core"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/fatih/structs"
 	"github.com/gin-gonic/gin"
@@ -24,41 +23,63 @@ type Data struct {
 	Text          string `json:"text"`
 	Dom           string `json:"dom"`
 	Title         string `json:"title"`
-	Iframe        bool   `json:"iframe"`
+	Iframe        string `json:"iframe"`
+	IP            string
 	Time          string
 }
 
 func Callback(c *gin.Context) {
 	var data Data
+	currentTime := time.Now()
 
 	if err := c.ShouldBindJSON(&data); err != nil {
 		c.JSON(http.StatusOK, err)
 	}
+
 	c.JSON(http.StatusOK, data)
+
 	domain := strings.SplitAfter(data.Origin, "//")
-	core.Optmize(data.ScreenEncoded, domain[1])
-	core.Msg = "XSS Fired! at " + data.URL
-	core.S()
+
+	file, err := core.Optmize(data.ScreenEncoded, domain[1])
+
+	if err != nil {
+		core.LogErrorDiscord(err.Error())
+	}
+
+	core.FileN = file
+
+	data.IP = c.ClientIP()
+
+	data.Time = fmt.Sprintf("%d/%d/%d %d:%d:%d", currentTime.Year(),
+		currentTime.Month(),
+		currentTime.Day(),
+		currentTime.Hour(),
+		currentTime.Minute(),
+		currentTime.Second())
+
+	core.Msg = readTpl(data)
+	core.HitDiscord()
 }
 
-func readTpl() string {
+func readTpl(data Data) string {
 	str := ""
-	file, err := os.Open("./tpl")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer file.Close()
+	m := structs.Map(data)
 	f := structs.Names(&Data{})
-	scanner := bufio.NewScanner(file)
-	// optionally, resize scanner's capacity for lines over 64K, see next example
-	for scanner.Scan() {
-		for _, name := range f {
-			strings.Replace(scanner.Text(), fmt.Sprintf("{{%s}}", name), Data.Dom, 20)
-		}
+
+	input, err := os.ReadFile("./tpl")
+	if err != nil {
+		core.LogErrorDiscord(err.Error())
 	}
 
-	if err := scanner.Err(); err != nil {
-		log.Fatal(err)
+	lines := strings.Split(string(input), "\n")
+
+	for i, line := range lines {
+		for _, name := range f {
+			if strings.Contains(line, fmt.Sprintf("{{%s}}", name)) {
+				lines[i] = strings.Replace(lines[i], fmt.Sprintf("{{%s}}", name), m[name].(string), -1)
+			}
+		}
 	}
+	str = strings.Join(lines, "\n")
 	return str
 }

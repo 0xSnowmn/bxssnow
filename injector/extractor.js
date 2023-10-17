@@ -9,7 +9,7 @@ var data = {
     text:"",
     dom:"",
     title:"",
-    iframe:!(window.top === window)
+    iframe:window.top === window ? 'false' : 'true'
 }
 var e = null
 
