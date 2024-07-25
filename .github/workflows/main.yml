@@ -1,0 +1,45 @@
+name: Build
+on:
+  push:
+    branches:
+      - master
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'  # Use the appropriate Python version
+
+      - name: Install Semgrep
+        run: |
+          python -m pip install --upgrade pip
+          pip install semgrep
+
+      - name: Run Semgrep
+        run: semgrep --version  # Check if semgrep runs correctly
+
+      - name: Install SonarScanner
+        run: |
+          # Download and install SonarScanner CLI version 6.0.0.4432
+          wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-6.0.0.4432-linux.zip
+          unzip sonar-scanner-cli-6.0.0.4432-linux.zip
+          sudo mv sonar-scanner-6.0.0.4432-linux /opt/sonar-scanner
+          sudo ln -s /opt/sonar-scanner/bin/sonar-scanner /usr/local/bin/sonar-scanner
+
+
+      - name: Configure SonarScanner
+        run: |
+          echo "sonar.projectKey=Ko2X1Iin8IV.8i:d" >> sonar-project.properties
+          echo "sonar.sources=." >> sonar-project.properties
+          echo "sonar.host.url=${{ secrets.SONAR_HOST_URL }}" >> sonar-project.properties
+          echo "sonar.login=${{ secrets.SONAR_TOKEN }}" >> sonar-project.properties
+
+      - name: Run SonarScanner
+        run: sonar-scanner
