@@ -2,7 +2,7 @@ name: Build
 on:
   push:
     branches:
-      - master
+      - main
 jobs:
   build:
     name: Build
@@ -36,7 +36,7 @@ jobs:
 
       - name: Configure SonarScanner
         run: |
-          echo "sonar.projectKey=ekA0:WCU:iB_8_fK" >> sonar-project.properties
+          echo "sonar.projectKey=C0FHfL-89FchDGAe" >> sonar-project.properties
           echo "sonar.sources=." >> sonar-project.properties
           echo "sonar.host.url=${{ secrets.SONAR_HOST_URL }}" >> sonar-project.properties
           echo "sonar.login=${{ secrets.SONAR_TOKEN }}" >> sonar-project.properties
