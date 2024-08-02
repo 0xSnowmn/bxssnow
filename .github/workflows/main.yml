@@ -26,4 +26,4 @@ jobs:
           -e SONAR_PROJECTKEY="${{ secrets.PROJECTKEY }}" \
           -e SONAR_HOST_URL=${{ secrets.SONAR_HOST_URL }} \
           -e SONAR_TOKEN=${{ secrets.SONAR_TOKEN }} \
-          blacklock-code-scanner:latest
+          blacklocksec/code-scanner:latest
