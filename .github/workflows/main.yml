@@ -3,7 +3,7 @@ name: Build
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   build:
@@ -17,7 +17,7 @@ jobs:
           fetch-depth: 0  # Shallow clones should be disabled for full history
 
       - name: Pull Blacklock Code Scanner Docker Image
-        run: docker pull blacklock-code-scanner:latest
+        run: docker pull blacklocksec/code-scanner:latest
 
       - name: Run Blacklock Code Scanner
         run: |
