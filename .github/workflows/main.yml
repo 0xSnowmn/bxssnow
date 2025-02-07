@@ -2,62 +2,29 @@ name: Count Lines of Code
 
 on:
   push:
-    branches: [ master, main ]
+    branches:
+      - main
   pull_request:
-    branches: [ master, main ]
-  workflow_dispatch:  # Allows manual trigger
+    branches:
+      - main
 
 jobs:
-  count:
+  count-loc:
     runs-on: ubuntu-latest
-    
-    steps:
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0  # Fetches all history for all branches and tags
-        
-    - name: Install cloc
-      run: sudo apt-get install -y cloc
-      
-    - name: Count lines of code
-      id: cloc
-      run: |
-        echo "### Lines of Code Report" > cloc_report.md
-        echo "\`\`\`" >> cloc_report.md
-        cloc --git master --md >> cloc_report.md
-        echo "\`\`\`" >> cloc_report.md
-        
-    - name: Create/Update Comment
-      uses: peter-evans/create-or-update-comment@v3
-      if: github.event_name == 'pull_request'
-      with:
-        issue-number: ${{ github.event.pull_request.number }}
-        body-path: cloc_report.md
-        
-    - name: Update README
-      if: github.event_name == 'push'
-      run: |
-        # Create or update the LOC section in README
-        if [ -f README.md ]; then
-          sed -i '/## Lines of Code/,/```/d' README.md || true
-        else
-          touch README.md
-        fi
-        echo -e "\n## Lines of Code\n" >> README.md
-        cat cloc_report.md >> README.md
-        
-    - name: Commit and push if changes exist
-      if: github.event_name == 'push'
-      run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git add README.md
-        git commit -m "Update lines of code count" || exit 0
-        git push
 
-    - name: Upload report as artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: loc-report
-        path: cloc_report.md
-        retention-days: 90  # v4 specific feature to set retention period
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Count lines of code
+      id: count-loc
+      run: |
+        # Use cloc to count lines of code
+        echo "Lines of code:"
+        cloc --quiet --csv --out=cloc.csv .
+        LOC=$(awk -F, '{sum += $5} END {print sum}' cloc.csv)
+        echo "Total lines of code: $LOC"
+        echo "::set-output name=loc::$LOC"
+
+    - name: Output lines of code
+      run: echo "Total lines of code: ${{ steps.count-loc.outputs.loc }}"
