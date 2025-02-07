@@ -2,11 +2,10 @@ name: Count Lines of Code
 
 on:
   push:
-    branches:
-      - main
+    branches: [ master, main ]
   pull_request:
-    branches:
-      - main
+    branches: [ master, main ]
+  workflow_dispatch:  # Allows manual trigger
 
 jobs:
   count-loc:
