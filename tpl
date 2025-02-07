@@ -1,4 +1,4 @@
-XSS Fired! {{URL}}
+XSS Fired! {{URL}} 
 ```
 URL:                {{URL}}
 ORIGIN:             {{Origin}}
